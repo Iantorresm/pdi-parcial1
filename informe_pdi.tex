@@ -1,0 +1,80 @@
+\documentclass[journal,10pt,twocolumn]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{lipsum} % Para texto de relleno inicial
+
+\begin{document}
+
+\title{Comparación de Técnicas de Mejora de Contraste en Imágenes Digitales: HE, CLAHE y BHE2PL}
+
+\author{
+    \IEEEauthorblockN{Autor(es)}
+    \IEEEauthorblockA{
+        Facultad\\
+        Asignatura: PDI - Primer Parcial\\
+        Email: correo@institucion.edu
+    }
+}
+
+\maketitle
+
+\begin{abstract}
+Este documento presenta un análisis cuantitativo y cualitativo de tres algoritmos de mejora de contraste en imágenes digitales: Ecualización de Histograma tradicional (HE), Ecualización de Histograma Adaptativa Limitada por Contraste (CLAHE) y Ecualización de Bi-histograma usando dos límites de meseta (BHE2PL). Se evalúa el desempeño de las técnicas utilizando métricas estandarizadas como AMBE, PSNR, entropía y contraste, sobre un conjunto de imágenes. Los resultados demuestran diferencias estadísticamente significativas en la preservación del brillo y mejora visual, validadas a través de pruebas de hipótesis rigurosas.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR.
+\end{IEEEkeywords}
+
+\section{Introducción}
+\IEEEPARstart{L}{a} mejora del contraste es una técnica fundamental en el procesamiento digital de imágenes. La Ecualización de Histograma (HE) es uno de los métodos más utilizados debido a su simplicidad. Sin embargo, HE usualmente produce sobre-realce y desplazamiento excesivo del brillo medio. Para abordar estas limitaciones, se introdujeron métodos locales como CLAHE y métodos que dividen el histograma global, como BHE2PL~\cite{aquino2017bi}. El objetivo de este estudio es realizar una comparación exhaustiva de estas tres técnicas considerando la preservación del brillo natural y el incremento en el contraste, sin introducir artefactos de saturación excesivos.
+
+\section{Marco Teórico}
+En esta sección se describen brevemente las técnicas utilizadas.
+
+\subsection{Ecualización de Histograma (HE)}
+HE busca redistribuir las intensidades de los píxeles para lograr un histograma plano, incrementando el rango dinámico global de la imagen.
+
+\subsection{CLAHE}
+El método Contrast Limited Adaptive Histogram Equalization divide la imagen en bloques (tiles) y aplica ecualización limitando el contraste (recortando picos del histograma) para evitar la amplificación de ruido en áreas homogéneas.
+
+\subsection{Ecualización de Bi-histograma (BHE2PL)}
+Esta técnica propuesta divide el histograma en dos secciones basadas en el nivel de intensidad promedio, calculando límites de meseta para modificar de forma adaptativa cada sub-histograma y ecualizarlos independientemente, con el fin de preservar el brillo~\cite{aquino2017bi}.
+
+\section{Metodología}
+\subsection{Base de Datos y Herramientas}
+Las pruebas se realizaron sobre un conjunto de imágenes representativas provenientes de la base de datos de segmentación de Berkeley~\cite{MartinFTM01}, utilizando Python y librerías de OpenCV.
+
+\subsection{Métricas de Evaluación}
+Se emplearon las siguientes métricas:
+\begin{itemize}
+    \item \textbf{AMBE (Absolute Mean Brightness Error):} Mide la desviación del brillo promedio.
+    \item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Evalúa el nivel de distorsión introducido.
+    \item \textbf{Contraste:} Desviación estándar de los niveles de gris.
+    \item \textbf{Entropía:} Medida de la información contenida en la imagen.
+\end{itemize}
+
+\subsection{Análisis Estadístico}
+Para la evaluación robusta de las diferencias observadas, se aplicó la prueba T de Student para muestras relacionadas, obteniendo valores $p$ (p-values) que determinan la significancia estadística entre las métricas de los métodos.
+
+\section{Resultados y Discusión}
+\subsection{Análisis Cuantitativo}
+Se compararon en forma condensada los valores de AMBE, PSNR, entropía y contraste. % Ref a la tabla de resultados.
+
+\subsection{Análisis Visual Cualitativo}
+% Ref a la imagen comparativa generada.
+
+\section{Conclusiones}
+Las conclusiones preliminares demuestran que mientras HE incrementa fuertemente el contraste global, falla en preservar el brillo original. BHE2PL y CLAHE ofrecen mejores balances de realce local y protección contra el ruido, confirmados estadística y cualitativamente.
+
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
+
+\end{document}

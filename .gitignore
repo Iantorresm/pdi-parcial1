@@ -1,0 +1,47 @@
+# Entornos virtuales de Python
+.venv/
+venv/
+env/
+
+# Archivos compilados y de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos intermedios y de compilación generados por LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.xdv
+*.nav
+*.snm
+
+# Directorios de datos e imágenes (Para no subir cientos de fotos pesadas a GitHub)
+dataset/
+/data/
+*.zip
+*.tar.gz
+
+# Archivos propios del Sistema Operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Archivos de configuración de editores (opcional)
+# .vscode/
+# .idea/
+
+#Archivo de referencia
+Met.py
