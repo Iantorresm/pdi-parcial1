@@ -66,7 +66,26 @@ Para la evaluación robusta de las diferencias observadas, se aplicó la prueba 
 
 \section{Resultados y Discusión}
 \subsection{Análisis Cuantitativo}
-Se compararon en forma condensada los valores de AMBE, PSNR, entropía y contraste. % Ref a la tabla de resultados.
+La Tabla~\ref{tab:global_results} resume los promedios globales calculados en el script de evaluación.
+
+\begin{table}[H]
+\caption{Promedios globales (media) para 300 imágenes}
+\label{tab:global_results}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+Método & T (ms) & AMBE & PSNR & Entr. & Cont. \\
+\midrule
+HE & \textbf{0.079056} & 27.804682 & 16.117495 & 6.931329 & \textbf{73.307259} \\
+CLAHE & 0.291770 & 12.020926 & 20.079830 & \textbf{7.553357} & 57.584592 \\
+BHE2PL & 1.538910 & \textbf{1.315239} & \textbf{42.159020} & 7.075197 & 51.321762 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\footnotesize{Los mejores resultados por métrica se resaltan en negrita.}
+\end{table}
 
 \subsection{Análisis Visual Cualitativo}
 % Ref a la imagen comparativa generada.
