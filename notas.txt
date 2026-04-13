@@ -1,2 +1,8 @@
 - Falta especificar las secciones del articulo
--
+- Agregar tamaño de pixeles de las imagenes del dataset, y mencionar que se ha convertido a escala de grises por antemano
+- Ver qué significa el paréntesis al lado de las fórmulas
+- Revisar si los valores de las tablas son reales (ejecutar una vez y manualmente cambiar o parametrizar a base de ese valor si sos ferrer)
+- Organizar las imágenes teniendo en cuenta el paper del profe Pinto
+- Mejorar la declaración de los objetivos
+- Gráficos en blanco y negro 
+- Mejorar (hacer más verboso?) las oraciones teniendo en cuenta requisitos.md

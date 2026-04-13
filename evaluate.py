@@ -1,6 +1,7 @@
 import os
 import argparse
 import time
+from itertools import combinations
 import cv2
 import numpy as np
 import scipy.stats as stats
@@ -15,11 +16,9 @@ from bhe2pl import bhe2pl
 def calculate_single_image_metrics(img):
     contrast = np.std(img, dtype=np.float64)
     entropy = shannon_entropy(img)
-    lap_var = cv2.Laplacian(img, cv2.CV_64F).var()
     return {
         'Contrast': contrast,
         'Entropy': entropy,
-        'LaplacianVar': lap_var,
     }
 
 
@@ -36,23 +35,15 @@ def calculate_metrics(img_orig, img_enh):
     # Entropía (Shannon)
     entropy = shannon_entropy(img_enh)
 
-    # MSE
-    mse = np.mean((img_orig.astype(np.float64) - img_enh.astype(np.float64)) ** 2)
-
     # SSIM
     ssim_val = ssim(img_orig, img_enh, data_range=255)
-
-    # Nitidez estimada por varianza del Laplaciano
-    lap_var = cv2.Laplacian(img_enh, cv2.CV_64F).var()
 
     return {
         'AMBE': ambe,
         'PSNR': psnr,
         'Contrast': contrast,
         'Entropy': entropy,
-        'MSE': mse,
         'SSIM': ssim_val,
-        'LaplacianVar': lap_var,
     }
 
 
@@ -120,11 +111,12 @@ def plot_reference_results(reference_image_path, output_dir, clahe_obj):
 
 
 def save_metric_boxplots(df, output_dir):
-    metrics = ['AMBE', 'PSNR', 'Contrast', 'Entropy', 'SSIM', 'MSE']
+    metrics = ['AMBE', 'PSNR', 'Contrast', 'Entropy', 'SSIM']
     techniques = ['Original', 'HE', 'CLAHE', 'BHE2PL']
 
     fig, axes = plt.subplots(2, 3, figsize=(14, 8))
-    for ax, metric in zip(axes.flat, metrics):
+    flat_axes = axes.flat
+    for ax, metric in zip(flat_axes, metrics):
         data = []
         labels = []
         for tech in techniques:
@@ -140,6 +132,9 @@ def save_metric_boxplots(df, output_dir):
         ax.boxplot(data, tick_labels=labels, showmeans=True)
         ax.set_title(metric)
         ax.grid(axis='y', alpha=0.25)
+
+    for ax in list(axes.flat)[len(metrics):]:
+        ax.set_visible(False)
 
     fig.suptitle('Distribución de métricas por técnica', fontsize=12)
     fig.tight_layout()
@@ -176,25 +171,24 @@ def save_time_plot(df, output_dir):
 
 def print_global_averages(summary):
     metrics = [
-        ('AMBE', 'AMBE'),
-        ('PSNR', 'PSNR'),
-        ('Contrast', 'Contrast'),
-        ('Entropy', 'Entropy'),
-        ('MSE', 'MSE'),
-        ('SSIM', 'SSIM'),
-        ('LaplacianVar', 'LaplacianVar'),
-        ('Time_ms', 'Time_ms'),
+        ('AMBE', 'AMBE_mean', 'AMBE_std'),
+        ('PSNR', 'PSNR_mean', 'PSNR_std'),
+        ('Contrast', 'Contrast_mean', 'Contrast_std'),
+        ('Entropy', 'Entropy_mean', 'Entropy_std'),
+        ('SSIM', 'SSIM_mean', 'SSIM_std'),
+        ('Time_ms', 'Time_ms_mean', 'Time_ms_std'),
     ]
 
     print("\n--- Promedios Globales (linea por linea) ---")
     for method in summary.index:
         print(f"\nMetodo: {method}")
-        for metric_name, mean_col in metrics:
+        for metric_name, mean_col, std_col in metrics:
             mean_val = summary.loc[method, mean_col]
-            if pd.isna(mean_val):
-                print(f"  {metric_name}: mean = N/A")
+            std_val = summary.loc[method, std_col]
+            if pd.isna(mean_val) or pd.isna(std_val):
+                print(f"  {metric_name}: N/A")
             else:
-                print(f"  {metric_name}: mean = {mean_val:.6f}")
+                print(f"  {metric_name}: {mean_val:.6f} ± {std_val:.6f}")
     
 
 def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_path="dataset/referencia.jpg"):
@@ -231,9 +225,7 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
             'PSNR': np.nan,
             'Contrast': original_metrics['Contrast'],
             'Entropy': original_metrics['Entropy'],
-            'MSE': np.nan,
             'SSIM': np.nan,
-            'LaplacianVar': original_metrics['LaplacianVar'],
         })
 
         processed = apply_techniques(img, clahe_obj)
@@ -260,15 +252,14 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
     df.to_csv(detailed_csv, index=False)
 
     summary = df.groupby('technique', as_index=True).agg({
-        'AMBE': 'mean',
-        'PSNR': 'mean',
-        'Contrast': 'mean',
-        'Entropy': 'mean',
-        'MSE': 'mean',
-        'SSIM': 'mean',
-        'LaplacianVar': 'mean',
-        'Time_ms': 'mean',
+        'AMBE': ['mean', 'std'],
+        'PSNR': ['mean', 'std'],
+        'Contrast': ['mean', 'std'],
+        'Entropy': ['mean', 'std'],
+        'SSIM': ['mean', 'std'],
+        'Time_ms': ['mean', 'std'],
     })
+    summary.columns = ['_'.join(col).strip() for col in summary.columns.to_flat_index()]
     summary_csv = os.path.join(output_dir, 'resumen_metricas.csv')
     summary.to_csv(summary_csv)
     
@@ -277,22 +268,32 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
     print("\n--- Pruebas Estadísticas (p-valor) ---")
     print("T-test pareado entre técnicas (HE, CLAHE, BHE2PL)")
 
-    df_processed = df[df['technique'].isin(['HE', 'CLAHE', 'BHE2PL'])]
-    pivot_metrics = {
-        metric: df_processed.pivot(index='filename', columns='technique', values=metric).dropna()
-        for metric in ['AMBE', 'PSNR', 'Contrast', 'Entropy', 'MSE', 'SSIM', 'LaplacianVar', 'Time_ms']
+    metric_techniques = {
+        'AMBE': ['HE', 'CLAHE', 'BHE2PL'],
+        'PSNR': ['HE', 'CLAHE', 'BHE2PL'],
+        'Contrast': ['Original', 'HE', 'CLAHE', 'BHE2PL'],
+        'Entropy': ['Original', 'HE', 'CLAHE', 'BHE2PL'],
+        'SSIM': ['HE', 'CLAHE', 'BHE2PL'],
+        'Time_ms': ['HE', 'CLAHE', 'BHE2PL'],
     }
 
-    comparisons = [('HE', 'CLAHE'), ('HE', 'BHE2PL'), ('CLAHE', 'BHE2PL')]
     stats_rows = []
 
-    for metric, pivot_df in pivot_metrics.items():
-        for t1, t2 in comparisons:
+    for metric, techniques in metric_techniques.items():
+        pivot_df = df[df['technique'].isin(techniques)].pivot(
+            index='filename', columns='technique', values=metric
+        )
+
+        for t1, t2 in combinations(techniques, 2):
             if t1 not in pivot_df.columns or t2 not in pivot_df.columns or len(pivot_df) < 2:
                 continue
-            t_stat, p_val = stats.ttest_rel(pivot_df[t1], pivot_df[t2], nan_policy='omit')
+            pair_df = pivot_df[[t1, t2]].dropna()
+            if len(pair_df) < 2:
+                continue
+
+            t_stat, p_val = stats.ttest_rel(pair_df[t1], pair_df[t2], nan_policy='omit')
             sig = "Significativo" if p_val < 0.05 else "NO Significativo"
-            print(f"{metric} ({t1} vs {t2}): p-value = {p_val:.4e} ({sig})")
+            print(f"{metric} ({t1} vs {t2}): {p_val:.4e}")
             stats_rows.append({
                 'Metric': metric,
                 'Comparison': f'{t1} vs {t2}',
@@ -303,6 +304,7 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
 
     if stats_rows:
         pd.DataFrame(stats_rows).to_csv(os.path.join(output_dir, 'pruebas_estadisticas.csv'), index=False)
+        print("Pruebas estadísticas guardadas en output/pruebas_estadisticas.csv")
 
     save_metric_boxplots(df, output_dir)
     save_time_plot(df, output_dir)

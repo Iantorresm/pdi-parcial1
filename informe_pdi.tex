@@ -34,7 +34,11 @@ Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR.
 \end{IEEEkeywords}
 
 \section{Introducción}
-\IEEEPARstart{L}{a} mejora del contraste es una técnica fundamental en el procesamiento digital de imágenes. La Ecualización de Histograma (HE) es uno de los métodos más utilizados debido a su simplicidad. Sin embargo, HE usualmente produce sobre-realce y desplazamiento excesivo del brillo medio. Para abordar estas limitaciones, se introdujeron métodos locales como CLAHE y métodos que dividen el histograma global, como BHE2PL~\cite{aquino2017bi}. El objetivo de este estudio es realizar una comparación exhaustiva de estas tres técnicas considerando la preservación del brillo natural y el incremento en el contraste, sin introducir artefactos de saturación excesivos.
+\IEEEPARstart{L}{a} mejora del contraste es una etapa central en procesamiento digital de imágenes, especialmente cuando la iluminación no es uniforme o la escena presenta bajo rango dinámico. La Ecualización de Histograma (HE) es simple y rápida, pero puede sobre-realzar regiones y alterar el brillo medio. Para mitigar esas limitaciones se emplean enfoques locales, como CLAHE, y enfoques de preservación de brillo global, como BHE2PL~\cite{aquino2017bi}.
+
+En este trabajo se comparan HE, CLAHE y BHE2PL con dos objetivos concretos: i) cuantificar el compromiso entre preservación de brillo y mejora de contraste, y ii) analizar el costo computacional de cada técnica. Para cumplirlos se combinan métricas objetivas, pruebas estadísticas pareadas y análisis visual sobre una imagen de referencia.
+
+La estructura del artículo es la siguiente. En la Sección II se resume el marco teórico. En la Sección III se detallan el flujo experimental, las ecuaciones y los parámetros para reproducibilidad. En la Sección IV se presentan y discuten resultados cuantitativos y cualitativos. Finalmente, la Sección V expone las conclusiones.
 
 \section{Marco Teórico}
 En esta sección se describen brevemente las técnicas utilizadas.
@@ -50,7 +54,9 @@ Esta técnica propuesta divide el histograma en dos secciones basadas en el nive
 
 \section{Metodología}
 \subsection{Base de Datos y Herramientas}
-Las pruebas se realizaron sobre un conjunto de imágenes representativas provenientes de la base de datos de segmentación de Berkeley~\cite{MartinFTM01}, utilizando Python y librerías de OpenCV.
+Las pruebas se realizaron sobre 300 imágenes en escala de grises del conjunto Berkeley~\cite{MartinFTM01}. Se utilizaron Python 3, OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
+
+Los parámetros utilizados fueron: CLAHE con \texttt{clipLimit = 2.0} y \texttt{tileGridSize = (8,8)}; HE con la implementación estándar de OpenCV; y BHE2PL con la implementación de referencia desarrollada para este trabajo a partir de~\cite{aquino2017bi}. También se reportó tiempo de procesamiento por imagen y por método.
 
 \subsection{Métricas de Evaluación}
 Se emplearon las siguientes métricas:
@@ -59,17 +65,35 @@ Se emplearon las siguientes métricas:
     \item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Evalúa el nivel de distorsión introducido.
     \item \textbf{Contraste:} Desviación estándar de los niveles de gris.
     \item \textbf{Entropía:} Medida de la información contenida en la imagen.
+    \item \textbf{SSIM (Structural Similarity Index):} Mide similitud estructural respecto a la imagen original.
+    \item \textbf{Tiempo (ms):} Tiempo de ejecución por imagen para cada técnica.
 \end{itemize}
 
+Las métricas principales se calcularon mediante:
+\begin{equation}
+\mathrm{AMBE} = \left|\mu(I)-\mu(J)\right|
+\end{equation}
+\begin{equation}
+\mathrm{PSNR} = 10\log_{10}\left(\frac{L^2}{\mathrm{MSE}}\right),\quad
+\mathrm{MSE}=\frac{1}{MN}\sum_{x,y}\left(I(x,y)-J(x,y)\right)^2
+\end{equation}
+\begin{equation}
+\sigma(J)=\sqrt{\frac{1}{MN}\sum_{x,y}\left(J(x,y)-\mu(J)\right)^2}
+\end{equation}
+\begin{equation}
+H(J)=-\sum_{k=0}^{L-1} p_k\log_2 p_k
+\end{equation}
+donde $I$ es la imagen original, $J$ la imagen mejorada, $\mu$ la media de intensidad, $\sigma$ el contraste por desviación estándar y $H$ la entropía.
+
 \subsection{Análisis Estadístico}
-Para la evaluación robusta de las diferencias observadas, se aplicó la prueba T de Student para muestras relacionadas, obteniendo valores $p$ (p-values) que determinan la significancia estadística entre las métricas de los métodos.
+Para evaluar diferencias entre métodos se aplicó la prueba $t$ de Student pareada por imagen. Se utilizó un nivel de significancia $\alpha=0.05$. El valor $p$ indica qué tan compatible es la diferencia observada con la hipótesis nula de igualdad entre métodos: cuanto menor es $p$, mayor evidencia de diferencia estadística. Para AMBE, PSNR, SSIM y tiempo se compararon HE, CLAHE y BHE2PL. Para contraste y entropía se incluyó también la imagen original.
 
 \section{Resultados y Discusión}
 \subsection{Análisis Cuantitativo}
-La Tabla~\ref{tab:global_results} resume los promedios globales calculados en el script de evaluación.
+La Tabla~\ref{tab:global_results} resume los promedios globales calculados en el script de evaluación, reportando media $\pm$ desviación estándar.
 
 \begin{table}[H]
-\caption{Promedios globales (media) para 300 imágenes}
+\caption{Promedios globales (media $\pm$ desvío estándar) para 300 imágenes}
 \label{tab:global_results}
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -77,9 +101,10 @@ La Tabla~\ref{tab:global_results} resume los promedios globales calculados en el
 \toprule
 Método & T (ms) & AMBE & PSNR & Entr. & Cont. \\
 \midrule
-HE & \textbf{0.079056} & 27.804682 & 16.117495 & 6.931329 & \textbf{73.307259} \\
-CLAHE & 0.291770 & 12.020926 & 20.079830 & \textbf{7.553357} & 57.584592 \\
-BHE2PL & 1.538910 & \textbf{1.315239} & \textbf{42.159020} & 7.075197 & 51.321762 \\
+Original & -- & -- & -- & 7.127429 $\pm$ 0.534419 & 50.061337 $\pm$ 15.067624 \\
+HE & \textbf{0.088105 $\pm$ 0.017721} & 27.804682 $\pm$ 20.683897 & 16.117495 $\pm$ 4.109758 & 6.931329 $\pm$ 0.543245 & \textbf{73.307259 $\pm$ 2.032467} \\
+CLAHE & 0.285640 $\pm$ 0.079161 & 12.020926 $\pm$ 7.570239 & 20.079830 $\pm$ 2.069813 & \textbf{7.553357 $\pm$ 0.377354} & 57.584592 $\pm$ 11.488977 \\
+BHE2PL & 1.429696 $\pm$ 0.189326 & \textbf{1.315239 $\pm$ 0.934198} & \textbf{42.159020 $\pm$ 19.368343} & 7.075197 $\pm$ 0.526298 & 51.321762 $\pm$ 14.434098 \\
 \bottomrule
 \end{tabular}%
 }
@@ -87,11 +112,36 @@ BHE2PL & 1.538910 & \textbf{1.315239} & \textbf{42.159020} & 7.075197 & 51.32176
 \footnotesize{Los mejores resultados por métrica se resaltan en negrita.}
 \end{table}
 
+La Tabla~\ref{tab:global_results} muestra que BHE2PL logra el mejor AMBE (menor error de brillo) y el mejor PSNR, mientras que HE es el método más rápido y el que más incrementa contraste global. CLAHE alcanza la mayor entropía promedio. Este comportamiento es coherente con la naturaleza de cada método: HE prioriza expansión global del histograma, CLAHE enfatiza realce local y BHE2PL balancea realce con preservación de brillo.
+
+En términos estadísticos, las comparaciones pareadas arrojaron valores $p$ extremadamente bajos para AMBE y PSNR entre pares de métodos (por ejemplo, AMBE HE vs CLAHE: $1.7857\times10^{-43}$), lo que respalda que las diferencias observadas no se deben al azar en este conjunto de datos.
+
 \subsection{Análisis Visual Cualitativo}
-% Ref a la imagen comparativa generada.
+La Fig.~\ref{fig:ref_images} presenta la imagen de referencia original y los resultados de cada técnica. La Fig.~\ref{fig:ref_hist} muestra los histogramas correspondientes. Ambas figuras permiten relacionar la evidencia visual con los resultados de la Tabla~\ref{tab:global_results}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\columnwidth]{output/referencia_original.png}
+\includegraphics[width=0.48\columnwidth]{output/referencia_he.png}\\
+\includegraphics[width=0.48\columnwidth]{output/referencia_clahe.png}
+\includegraphics[width=0.48\columnwidth]{output/referencia_bhe2pl.png}
+\caption{Comparación visual para una imagen de referencia (arriba izquierda: Original, arriba derecha: HE, abajo izquierda: CLAHE, abajo derecha: BHE2PL).}
+\label{fig:ref_images}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{output/referencia_histogramas.png}
+\caption{Histogramas de la imagen de referencia y de las técnicas evaluadas.}
+\label{fig:ref_hist}
+\end{figure}
+
+Visualmente, HE produce el mayor realce global y puede saturar regiones brillantes u oscuras. CLAHE mejora detalles locales, aunque en algunos casos aumenta la apariencia de ruido. BHE2PL ofrece una transición tonal más conservadora y consistente con la menor variación de brillo medida por AMBE.
 
 \section{Conclusiones}
-Las conclusiones preliminares demuestran que mientras HE incrementa fuertemente el contraste global, falla en preservar el brillo original. BHE2PL y CLAHE ofrecen mejores balances de realce local y protección contra el ruido, confirmados estadística y cualitativamente.
+Los experimentos cumplieron los objetivos planteados. Primero, se confirmó cuantitativamente que BHE2PL preserva mejor el brillo que HE y CLAHE (AMBE mínimo), manteniendo además PSNR superior. Segundo, se verificó que HE es el método con menor costo temporal promedio, por lo que resulta útil cuando la prioridad es velocidad.
+
+La discusión conjunta de Tabla~\ref{tab:global_results}, Fig.~\ref{fig:ref_images} y Fig.~\ref{fig:ref_hist} muestra que no existe un método universalmente óptimo: la selección depende del objetivo de aplicación. Si se prioriza preservación de brillo y fidelidad, BHE2PL es la opción más robusta. Si se prioriza realce local, CLAHE ofrece mejor compromiso visual. Si se prioriza costo computacional y contraste global, HE es conveniente.
 
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}
