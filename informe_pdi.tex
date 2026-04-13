@@ -15,133 +15,141 @@
 \title{Comparación de Técnicas de Mejora de Contraste en Imágenes Digitales: HE, CLAHE y BHE2PL}
 
 \author{
-    \IEEEauthorblockN{Autor(es)}
-    \IEEEauthorblockA{
-        Facultad\\
-        Asignatura: PDI - Primer Parcial\\
-        Email: correo@institucion.edu
-    }
+	\IEEEauthorblockN{Autor(es)}
+	\IEEEauthorblockA{
+		Facultad\\
+		Asignatura: PDI - Primer Parcial\\
+		Email: correo@institucion.edu
+	}
 }
 
 \maketitle
 
 \begin{abstract}
-Este documento presenta un análisis cuantitativo y cualitativo de tres algoritmos de mejora de contraste en imágenes digitales: Ecualización de Histograma tradicional (HE), Ecualización de Histograma Adaptativa Limitada por Contraste (CLAHE) y Ecualización de Bi-histograma usando dos límites de meseta (BHE2PL). Se evalúa el desempeño de las técnicas utilizando métricas estandarizadas como AMBE, PSNR, entropía y contraste, sobre un conjunto de imágenes. Los resultados demuestran diferencias estadísticamente significativas en la preservación del brillo y mejora visual, validadas a través de pruebas de hipótesis rigurosas.
+	La iluminación no uniforme en imágenes de bajo contraste es un problema constante que deteriora los modelos visuales digitales. A fin de abordar esta problemática, el presente documento propone una rigurosa comparación cuantitativa y cualitativa de las principales técnicas de procesamiento de contraste. En primer lugar, se estudia la Ecualización de Histograma tradicional (HE). En segundo lugar, se analiza la Ecualización de Histograma Adaptativa Limitada por Contraste (CLAHE). Por último, se examina a fondo la Ecualización de Bi-histograma basada en límites de meseta (BHE2PL). Estas técnicas computacionales se evalúan mediante métricas normalizadas de AMBE, PSNR, entropía y contraste en una colección estandarizada de imágenes. El análisis final constata de manera experimental que la técnica BHE2PL logra un excelente balance y presenta la mayor preservación del brillo promedio, en contraposición a las sobre-saturaciones producidas por HE y CLAHE. En conclusión, estos algoritmos poseen distintos compromisos funcionales y costos temporales cuya selección recae en las necesidades del observador.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR.
+	Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR.
 \end{IEEEkeywords}
 
 \section{Introducción}
-\IEEEPARstart{L}{a} mejora del contraste es una etapa central en procesamiento digital de imágenes, especialmente cuando la iluminación no es uniforme o la escena presenta bajo rango dinámico. La Ecualización de Histograma (HE) es simple y rápida, pero puede sobre-realzar regiones y alterar el brillo medio. Para mitigar esas limitaciones se emplean enfoques locales, como CLAHE, y enfoques de preservación de brillo global, como BHE2PL~\cite{aquino2017bi}.
+La mejora del contraste es una etapa central en el procesamiento digital de imágenes. Esta etapa resulta crucial especialmente cuando la iluminación de la escena no es uniforme o presenta un bajo rango dinámico. La técnica conocida como Ecualización de Histograma (HE) es simple y rápida. Sin embargo, HE puede sobre-realzar ciertas regiones y alterar de manera indeseada el brillo medio de la imagen original. Para mitigar estas limitaciones, los investigadores emplean enfoques locales, como CLAHE, y enfoques globales orientados a la preservación del brillo, como la técnica BHE2PL. Esta última técnica fue propuesta en las secciones 2 y 3 del artículo del profesor Pinto-Roa \textit{et al.}~\cite{aquino2017bi}.
 
-En este trabajo se comparan HE, CLAHE y BHE2PL con dos objetivos concretos: i) cuantificar el compromiso entre preservación de brillo y mejora de contraste, y ii) analizar el costo computacional de cada técnica. Para cumplirlos se combinan métricas objetivas, pruebas estadísticas pareadas y análisis visual sobre una imagen de referencia.
+En este artículo se aborda la problemática descrita mediante una comparación metodológica de las técnicas HE, CLAHE y BHE2PL. Los objetivos principales de este experimento son dos. En primer lugar, se busca cuantificar de manera rigurosa el compromiso existente entre la preservación del brillo original y la mejora efectiva del contraste. En segundo lugar, se pretende analizar exhaustivamente el costo computacional asociado a cada técnica implementada. Para cumplir estos objetivos, el estudio combina métricas objetivas, pruebas estadísticas pareadas y un análisis visual comparativo sobre diversas imágenes de referencia.
 
-La estructura del artículo es la siguiente. En la Sección II se resume el marco teórico. En la Sección III se detallan el flujo experimental, las ecuaciones y los parámetros para reproducibilidad. En la Sección IV se presentan y discuten resultados cuantitativos y cualitativos. Finalmente, la Sección V expone las conclusiones.
+La estructura del resto del artículo se organiza de la siguiente manera. La Sección II resume el marco teórico de cada algoritmo. La Sección III detalla el flujo experimental, las ecuaciones utilizadas y los parámetros necesarios para la reproducibilidad. La Sección IV presenta y discute los resultados cuantitativos y cualitativos. Finalmente, la Sección V expone las conclusiones de la investigación.
 
 \section{Marco Teórico}
-En esta sección se describen brevemente las técnicas utilizadas.
+En esta sección se describen brevemente las diferentes técnicas analizadas durante este proyecto.
 
 \subsection{Ecualización de Histograma (HE)}
-HE busca redistribuir las intensidades de los píxeles para lograr un histograma plano, incrementando el rango dinámico global de la imagen.
+La técnica de Ecualización de Histograma busca redistribuir las intensidades de los píxeles originales. Esta modificación pretende lograr un histograma totalmente plano. Dicha meta incrementa inmediatamente el rango dinámico global de la imagen y acentúa grandes contrastes visuales.
 
-\subsection{CLAHE}
-El método Contrast Limited Adaptive Histogram Equalization divide la imagen en bloques (tiles) y aplica ecualización limitando el contraste (recortando picos del histograma) para evitar la amplificación de ruido en áreas homogéneas.
+\subsection{Ecualización de Histograma Adaptativa Limitada por Contraste (CLAHE)}
+El método CLAHE divide secuencialmente la imagen original en pequeños bloques denominados tiles. Posteriormente, el algoritmo aplica un filtro de ecualización independiente para cada bloque procesado limitando el contraste general. Este recorte evita que se amplifique desmedidamente el ruido térmico en áreas previamente homogéneas y carentes de detalles significativos.
 
 \subsection{Ecualización de Bi-histograma (BHE2PL)}
-Esta técnica propuesta divide el histograma en dos secciones basadas en el nivel de intensidad promedio, calculando límites de meseta para modificar de forma adaptativa cada sub-histograma y ecualizarlos independientemente, con el fin de preservar el brillo~\cite{aquino2017bi}.
+Esta técnica divide artificialmente el histograma base en dos secciones separadas. Para este proceso, el algoritmo calcula dos niveles distintos de intensidad limitante e introduce parámetros de meseta o plateaus. Estos umbrales modifican adaptativamente ambos sub-histogramas mediante dos ecualizaciones autónomas. Este último paso permite conservar una gran porción del brillo original tal cual proponen las investigaciones del profesor Pinto-Roa~\cite{aquino2017bi}.
 
 \section{Metodología}
 \subsection{Base de Datos y Herramientas}
-Las pruebas se realizaron sobre 300 imágenes en escala de grises del conjunto Berkeley~\cite{MartinFTM01}. Se utilizaron Python 3, OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
+Las pruebas se realizaron sobre 300 imágenes del conjunto de datos de Berkeley~\cite{MartinFTM01}. Las imágenes, originarias de 481$\times$321 píxeles de tamaño, fueron convertidas previamente a escala de grises para su posterior evaluación. Las herramientas de software utilizadas para la implementación y el análisis incluyen Python 3, la biblioteca OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
 
-Los parámetros utilizados fueron: CLAHE con \texttt{clipLimit = 2.0} y \texttt{tileGridSize = (8,8)}; HE con la implementación estándar de OpenCV; y BHE2PL con la implementación de referencia desarrollada para este trabajo a partir de~\cite{aquino2017bi}. También se reportó tiempo de procesamiento por imagen y por método.
+Los parámetros técnicos utilizados durante los experimentos fueron definidos de manera rigurosa para garantizar su reproducibilidad. La técnica CLAHE empleó un límite de recorte de 2.0 y una grilla de bloques de $8\times 8$. La técnica HE empleó la implementación estándar provista por OpenCV. Por último, la técnica BHE2PL empleó una implementación de referencia desarrollada de forma local a partir del trabajo propuesto en~\cite{aquino2017bi}. Adicionalmente, el estudio registró y evaluó el tiempo de procesamiento requerido por cada técnica. Todos los experimentos iniciales se ejecutaron en una máquina local con procesador estándar y 16 GB de RAM. Sin embargo, las evaluaciones futuras incorporarán comparativas de hardware adicionales usando la computadora de alto rendimiento del investigador Fabri, para analizar las capacidades escalables de estos métodos.
 
 \subsection{Métricas de Evaluación}
-Se emplearon las siguientes métricas:
+El estudio evaluó el desempeño de las técnicas mediante diversas métricas objetivas de la literatura. A continuación, se detalla el propósito de cada una de estas métricas:
 \begin{itemize}
-    \item \textbf{AMBE (Absolute Mean Brightness Error):} Mide la desviación del brillo promedio.
-    \item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Evalúa el nivel de distorsión introducido.
-    \item \textbf{Contraste:} Desviación estándar de los niveles de gris.
-    \item \textbf{Entropía:} Medida de la información contenida en la imagen.
-    \item \textbf{SSIM (Structural Similarity Index):} Mide similitud estructural respecto a la imagen original.
-    \item \textbf{Tiempo (ms):} Tiempo de ejecución por imagen para cada técnica.
+	\item \textbf{AMBE (Absolute Mean Brightness Error):} Esta métrica mide la desviación del nivel de brillo promedio.
+	\item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Esta relación evalúa cuantitativamente el nivel de distorsión o ruido introducido.
+	\item \textbf{Contraste:} Esta métrica representa la desviación estándar de los niveles de intensidad gris.
+	\item \textbf{Entropía:} Esta medida de la teoría de la información evalúa la cantidad de detalles preservados en la imagen final.
+	\item \textbf{SSIM (Structural Similarity Index):} Este índice mide la similitud estructural percibida entre las imágenes.
+	\item \textbf{Tiempo (ms):} Esta variable representa el costo computacional temporal de cada algoritmo.
 \end{itemize}
 
-Las métricas principales se calcularon mediante:
+Las métricas principales fueron modeladas con las siguientes ecuaciones matemáticas. Los paréntesis ubicados a la derecha de cada expresión denotan el número referencial correspondiente para su uso en este documento:
 \begin{equation}
-\mathrm{AMBE} = \left|\mu(I)-\mu(J)\right|
+	\mathrm{AMBE} = \left|\mu(I)-\mu(J)\right|
+\end{equation}
+\begin{align}
+	\mathrm{PSNR} & = 10\log_{10}\left[\frac{(L-1)^2}{\mathrm{MSE}}\right],  \\
+	\mathrm{MSE}  & = \frac{1}{MN}\sum_{x,y}\left[I(x,y)-J(x,y)\right]^2
+\end{align}
+\begin{equation}
+	\sigma(J)=\sqrt{\frac{1}{MN}\sum_{x,y}\left[J(x,y)-\mu(J)\right]^2}
 \end{equation}
 \begin{equation}
-\mathrm{PSNR} = 10\log_{10}\left(\frac{L^2}{\mathrm{MSE}}\right),\quad
-\mathrm{MSE}=\frac{1}{MN}\sum_{x,y}\left(I(x,y)-J(x,y)\right)^2
+	H(J)=-\sum_{k=0}^{L-1} p(k)\log_2\left(p(k)\right)
 \end{equation}
-\begin{equation}
-\sigma(J)=\sqrt{\frac{1}{MN}\sum_{x,y}\left(J(x,y)-\mu(J)\right)^2}
-\end{equation}
-\begin{equation}
-H(J)=-\sum_{k=0}^{L-1} p_k\log_2 p_k
-\end{equation}
-donde $I$ es la imagen original, $J$ la imagen mejorada, $\mu$ la media de intensidad, $\sigma$ el contraste por desviación estándar y $H$ la entropía.
+En dichas ecuaciones, el símbolo $I$ representa la imagen original y el símbolo $J$ indica la imagen mejorada. Las variables $\mu$ y $\sigma$ refieren a la media de intensidad y el contraste por desviación estándar, respectivamente. Finalmente, la variable $H$ computa la entropía de Shannon.
 
 \subsection{Análisis Estadístico}
 Para evaluar diferencias entre métodos se aplicó la prueba $t$ de Student pareada por imagen. Se utilizó un nivel de significancia $\alpha=0.05$. El valor $p$ indica qué tan compatible es la diferencia observada con la hipótesis nula de igualdad entre métodos: cuanto menor es $p$, mayor evidencia de diferencia estadística. Para AMBE, PSNR, SSIM y tiempo se compararon HE, CLAHE y BHE2PL. Para contraste y entropía se incluyó también la imagen original.
 
 \section{Resultados y Discusión}
 \subsection{Análisis Cuantitativo}
-La Tabla~\ref{tab:global_results} resume los promedios globales calculados en el script de evaluación, reportando media $\pm$ desviación estándar.
+La Tabla~\ref{tab:global_results} presenta los promedios globales de todas las métricas evaluadas sobre el conjunto de imágenes. Estos valores reflejan las medias y desviaciones estándar resultantes de la ejecución de los experimentos locales de manera directa.
 
 \begin{table}[H]
-\caption{Promedios globales (media $\pm$ desvío estándar) para 300 imágenes}
-\label{tab:global_results}
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccccc}
-\toprule
-Método & T (ms) & AMBE & PSNR & Entr. & Cont. \\
-\midrule
-Original & -- & -- & -- & 7.127429 $\pm$ 0.534419 & 50.061337 $\pm$ 15.067624 \\
-HE & \textbf{0.088105 $\pm$ 0.017721} & 27.804682 $\pm$ 20.683897 & 16.117495 $\pm$ 4.109758 & 6.931329 $\pm$ 0.543245 & \textbf{73.307259 $\pm$ 2.032467} \\
-CLAHE & 0.285640 $\pm$ 0.079161 & 12.020926 $\pm$ 7.570239 & 20.079830 $\pm$ 2.069813 & \textbf{7.553357 $\pm$ 0.377354} & 57.584592 $\pm$ 11.488977 \\
-BHE2PL & 1.429696 $\pm$ 0.189326 & \textbf{1.315239 $\pm$ 0.934198} & \textbf{42.159020 $\pm$ 19.368343} & 7.075197 $\pm$ 0.526298 & 51.321762 $\pm$ 14.434098 \\
-\bottomrule
-\end{tabular}%
-}
-\vspace{2pt}
-\footnotesize{Los mejores resultados por métrica se resaltan en negrita.}
+	\caption{Promedios globales (media $\pm$ desvío estándar) para 300 imágenes locales}
+	\label{tab:global_results}
+	\centering
+	\resizebox{\columnwidth}{!}{%
+		\input{output/tabla_resultados.tex}
+	}
+	\vspace{2pt}
+	\footnotesize{Los mejores resultados por métrica se resaltan en negrita.}
 \end{table}
 
-La Tabla~\ref{tab:global_results} muestra que BHE2PL logra el mejor AMBE (menor error de brillo) y el mejor PSNR, mientras que HE es el método más rápido y el que más incrementa contraste global. CLAHE alcanza la mayor entropía promedio. Este comportamiento es coherente con la naturaleza de cada método: HE prioriza expansión global del histograma, CLAHE enfatiza realce local y BHE2PL balancea realce con preservación de brillo.
-
-En términos estadísticos, las comparaciones pareadas arrojaron valores $p$ extremadamente bajos para AMBE y PSNR entre pares de métodos (por ejemplo, AMBE HE vs CLAHE: $1.7857\times10^{-43}$), lo que respalda que las diferencias observadas no se deben al azar en este conjunto de datos.
+Los resultados de la Tabla~\ref{tab:global_results} demuestran comportamientos cuantitativos diferenciados. La técnica BHE2PL logra minimizar significativamente el error absoluto de brillo medio (AMBE) y, simultáneamente, alcanza el valor más óptimo de PSNR. Por su parte, la técnica HE prioriza fuertemente el tiempo computacional promedio y expande de manera más agresiva el contraste global. Además, la técnica CLAHE proporciona el mayor nivel medio de entropía calculada. Estos fenómenos evidencian una coherencia esperada en base a la naturaleza del diseño de cada algoritmo evaluado de forma individual. En términos probabilísticos y estadísticos, las pruebas pareadas t de Student resultaron consistentes con las tendencias mostradas. El índice $p$-valor entre la técnica HE y CLAHE sobre la métrica AMBE fue del orden de $10^{-43}$. Este resultado respalda empíricamente que estas variaciones no ocurrieron por azar en la población estudiada.
 
 \subsection{Análisis Visual Cualitativo}
-La Fig.~\ref{fig:ref_images} presenta la imagen de referencia original y los resultados de cada técnica. La Fig.~\ref{fig:ref_hist} muestra los histogramas correspondientes. Ambas figuras permiten relacionar la evidencia visual con los resultados de la Tabla~\ref{tab:global_results}.
+La Figura~\ref{fig:ref_images} presenta una de las imágenes procesadas en distintos modos, organizando su disposición espacial según la referencia del profesor Pinto-Roa \textit{et al.}~\cite{aquino2017bi} en su artículo base (Original, HE, CLAHE y BHE2PL). En el mismo sentido, la Figura~\ref{fig:ref_hist} detalla la estructura subyacente de frecuencias y distribuciones de todos sus respectivos histogramas en blanco y negro para facilitar la lectura cruzada de información.
+
+\begin{figure*}[t]
+	\centering
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{output/referencia_original.png}
+		\centerline{(a) Original}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{output/referencia_he.png}
+		\centerline{(b) HE}
+	\end{minipage}
+	\vspace{0.4cm} \\
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{output/referencia_clahe.png}
+		\centerline{(c) CLAHE}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{output/referencia_bhe2pl.png}
+		\centerline{(d) BHE2PL}
+	\end{minipage}
+	\caption{Comparación visual sobre una imagen tomada de la base de datos de Berkeley~\cite{MartinFTM01} organizada siguiendo el esquema de Pinto-Roa~\cite{aquino2017bi}.}
+	\label{fig:ref_images}
+\end{figure*}
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.48\columnwidth]{output/referencia_original.png}
-\includegraphics[width=0.48\columnwidth]{output/referencia_he.png}\\
-\includegraphics[width=0.48\columnwidth]{output/referencia_clahe.png}
-\includegraphics[width=0.48\columnwidth]{output/referencia_bhe2pl.png}
-\caption{Comparación visual para una imagen de referencia (arriba izquierda: Original, arriba derecha: HE, abajo izquierda: CLAHE, abajo derecha: BHE2PL).}
-\label{fig:ref_images}
+	\centering
+	\includegraphics[width=\columnwidth]{output/referencia_histogramas.png}
+	\caption{Histogramas de distribución generados localmente. Los picos fueron atenuados y reubicados por cada algoritmo procesado.}
+	\label{fig:ref_hist}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\columnwidth]{output/referencia_histogramas.png}
-\caption{Histogramas de la imagen de referencia y de las técnicas evaluadas.}
-\label{fig:ref_hist}
-\end{figure}
-
-Visualmente, HE produce el mayor realce global y puede saturar regiones brillantes u oscuras. CLAHE mejora detalles locales, aunque en algunos casos aumenta la apariencia de ruido. BHE2PL ofrece una transición tonal más conservadora y consistente con la menor variación de brillo medida por AMBE.
+El análisis visual comprueba de forma empírica las afirmaciones cuantitativas extraídas por el algoritmo. Como se observa en la Figura~\ref{fig:ref_images}(b), la técnica HE impone un fuerte realce global en las diferentes intensidades de gris, de modo que en repetidas ocasiones satura o quema porciones completas de la imagen respecto a la original en (a). Por otro lado, la técnica CLAHE en (c) mejora los detalles de alto nivel en vecindades más localizadas, pero exacerba visualmente el ruido de fondo en la fotografía. Finalmente, el algoritmo de preservación BHE2PL evidenciado en (d) ofrece una transición suave, sin degradaciones extremas. Esta moderación observada se relaciona directamente con el nivel tan estrecho de su respectiva métrica de error AMBE calculada previamente en nuestra experimentación.
 
 \section{Conclusiones}
-Los experimentos cumplieron los objetivos planteados. Primero, se confirmó cuantitativamente que BHE2PL preserva mejor el brillo que HE y CLAHE (AMBE mínimo), manteniendo además PSNR superior. Segundo, se verificó que HE es el método con menor costo temporal promedio, por lo que resulta útil cuando la prioridad es velocidad.
+Los experimentos realizados cumplieron satisfactoriamente todos los objetivos planteados inicialmente. Por un lado, se confirmó cuantitativamente que el método de mejora BHE2PL preserva el nivel del brillo original de una manera mucho más óptima respecto a sus técnicas subyacentes. Su implementación de doble ecualización redujo drásticamente las variaciones capturadas por el error absoluto de AMBE. Al mismo tiempo, la retención de similitud se tradujo en valores destacables de PSNR en la muestra evaluada. Por otro lado, las evaluaciones temporales demostraron que la técnica HE es el recurso con menor exigencia computacional. Su algoritmo logró ecualizar una imagen en milisegundos a costa de saturar gran porción de sus brillos iniciales.
 
-La discusión conjunta de Tabla~\ref{tab:global_results}, Fig.~\ref{fig:ref_images} y Fig.~\ref{fig:ref_hist} muestra que no existe un método universalmente óptimo: la selección depende del objetivo de aplicación. Si se prioriza preservación de brillo y fidelidad, BHE2PL es la opción más robusta. Si se prioriza realce local, CLAHE ofrece mejor compromiso visual. Si se prioriza costo computacional y contraste global, HE es conveniente.
+El cruce analítico de la Tabla~\ref{tab:global_results}, la Figura~\ref{fig:ref_images} y la Figura~\ref{fig:ref_hist} fundamenta que la elección no está sujeta a un único ganador. Cuando un entorno requiere fidelidad y retención rigurosa del brillo, la solución principal recae obligatoriamente en el balance adaptativo de BHE2PL. Si un observador médico o satelital prefiere resaltar al máximo la información en bordes y texturas locales, el algoritmo CLAHE entrega resultados muy superiores a costa de mayor ruido en sus celdas. Por su parte, la solución estándar HE presenta resultados aceptables si el dispositivo que ejecuta la tarea presenta serias limitaciones temporales. En resumidas cuentas, este documento comprueba que ninguna técnica opera óptimamente bajo toda circunstancia imaginable y cada aplicación demanda su propio contexto.
 
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}

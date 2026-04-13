@@ -80,7 +80,7 @@ def _plot_histograms_grid(images_by_name, save_path):
 
     for ax, name in zip(axes.flat, ordered_names):
         hist = cv2.calcHist([images_by_name[name]], [0], None, [256], [0, 256]).flatten()
-        ax.plot(hist, linewidth=1.2)
+        ax.plot(hist, linewidth=1.2, color='black')
         ax.set_title(f'Histograma - {name}')
         ax.set_xlim(0, 255)
         ax.set_xlabel('Intensidad')
@@ -129,7 +129,15 @@ def save_metric_boxplots(df, output_dir):
             ax.set_visible(False)
             continue
 
-        ax.boxplot(data, tick_labels=labels, showmeans=True)
+        boxprops = dict(linestyle='-', linewidth=1, color='black')
+        medianprops = dict(linestyle='-', linewidth=1.5, color='black')
+        meanprops = dict(marker='o', markeredgecolor='black', markerfacecolor='black')
+        whiskerprops = dict(color='black')
+        capprops = dict(color='black')
+        
+        ax.boxplot(data, tick_labels=labels, showmeans=True, 
+                   boxprops=boxprops, medianprops=medianprops, meanprops=meanprops, 
+                   whiskerprops=whiskerprops, capprops=capprops)
         ax.set_title(metric)
         ax.grid(axis='y', alpha=0.25)
 
@@ -148,7 +156,7 @@ def save_time_plot(df, output_dir):
     mean_times = mean_times.sort_values('Time_ms', ascending=True)
 
     fig, ax = plt.subplots(figsize=(7, 4))
-    bars = ax.bar(mean_times['technique'], mean_times['Time_ms'])
+    bars = ax.bar(mean_times['technique'], mean_times['Time_ms'], color='gray', edgecolor='black')
     ax.set_title('Tiempo promedio de procesamiento por técnica')
     ax.set_ylabel('Tiempo (ms)')
     ax.grid(axis='y', alpha=0.25)
@@ -188,7 +196,42 @@ def print_global_averages(summary):
             if pd.isna(mean_val) or pd.isna(std_val):
                 print(f"  {metric_name}: N/A")
             else:
-                print(f"  {metric_name}: {mean_val:.6f} ± {std_val:.6f}")
+                print(f"  {metric_name}: {mean_val:.3f} ± {std_val:.3f}")
+    
+    # Export to LaTeX
+    with open('output/tabla_resultados.tex', 'w', encoding='utf-8') as f:
+        f.write('\\begin{tabular}{lccccc}\n')
+        f.write('\\toprule\n')
+        f.write('Método & T (ms) & AMBE & PSNR & Entr. & Cont. \\\\\n')
+        f.write('\\midrule\n')
+        for method in ['Original', 'HE', 'CLAHE', 'BHE2PL']:
+            if method not in summary.index: continue
+            
+            def fmt(col_mean, col_std, is_best=False):
+                val = summary.loc[method, col_mean]
+                std = summary.loc[method, col_std]
+                if pd.isna(val): return '--'
+                res = f"{val:.3f} $\\pm$ {std:.3f}"
+                if is_best: res = f"\\textbf{{{res}}}"
+                return res
+            
+            # Find best metrics for highlighting
+            best_ambe = summary['AMBE_mean'].min()
+            best_psnr = summary['PSNR_mean'].max()
+            best_entr = summary['Entropy_mean'].max()
+            best_cont = summary['Contrast_mean'].max()
+            best_t = summary['Time_ms_mean'].min()
+            
+            t_str = fmt('Time_ms_mean', 'Time_ms_std', summary.loc[method, 'Time_ms_mean'] == best_t)
+            ambe_str = fmt('AMBE_mean', 'AMBE_std', summary.loc[method, 'AMBE_mean'] == best_ambe)
+            psnr_str = fmt('PSNR_mean', 'PSNR_std', summary.loc[method, 'PSNR_mean'] == best_psnr)
+            entr_str = fmt('Entropy_mean', 'Entropy_std', summary.loc[method, 'Entropy_mean'] == best_entr)
+            cont_str = fmt('Contrast_mean', 'Contrast_std', summary.loc[method, 'Contrast_mean'] == best_cont)
+            
+            f.write(f"{method} & {t_str} & {ambe_str} & {psnr_str} & {entr_str} & {cont_str} \\\\\n")
+        
+        f.write('\\bottomrule\n')
+        f.write('\\end{tabular}\n')
     
 
 def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_path="dataset/referencia.jpg"):
@@ -312,7 +355,7 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
     print("\nArchivos generados en output:")
     print("- resultados_detallados.csv")
     print("- resumen_metricas.csv")
-    print("- pruebas_estadisticas.csv (si hubo datos suficientes)")
+    print("- pruebas_estadisticas.csv")
     print("- referencia_original.png")
     print("- referencia_he.png")
     print("- referencia_clahe.png")
