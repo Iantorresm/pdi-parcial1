@@ -233,6 +233,62 @@ def print_global_averages(summary):
         
         f.write('\\bottomrule\n')
         f.write('\\end{tabular}\n')
+
+
+def _format_pvalue_latex(p_value):
+    if pd.isna(p_value):
+        return '--'
+    if p_value == 0:
+        return '$<1\\times10^{-300}$'
+    exponent = int(np.floor(np.log10(abs(p_value))))
+    mantissa = p_value / (10 ** exponent)
+    return f"${mantissa:.2f}\\times10^{{{exponent}}}$"
+
+
+def save_pvalues_latex_table(stats_rows, output_dir):
+    if not stats_rows:
+        return
+
+    selected_metrics = ['AMBE', 'PSNR', 'SSIM', 'Time_ms']
+    metric_order = {
+        'AMBE': 0,
+        'PSNR': 1,
+        'SSIM': 2,
+        'Time_ms': 3,
+    }
+    metric_display = {
+        'AMBE': 'AMBE',
+        'PSNR': 'PSNR',
+        'SSIM': 'SSIM',
+        'Time_ms': 'Tiempo',
+    }
+
+    stats_df = pd.DataFrame(stats_rows)
+    stats_df = stats_df[stats_df['Metric'].isin(selected_metrics)].copy()
+    if stats_df.empty:
+        return
+
+    stats_df = stats_df.sort_values(
+        by=['Metric', 'Comparison'],
+        key=lambda col: col.map(metric_order) if col.name == 'Metric' else col,
+    )
+
+    latex_path = os.path.join(output_dir, 'tabla_pvalores.tex')
+    with open(latex_path, 'w', encoding='utf-8') as f:
+        f.write('\\begin{tabular}{llcc}\n')
+        f.write('\\toprule\n')
+        f.write('Metrica & Comparacion & $p$-valor & Sig. \\\\\n')
+        f.write('\\midrule\n')
+
+        for _, row in stats_df.iterrows():
+            metric = metric_display.get(row['Metric'], row['Metric'])
+            comparison = row['Comparison']
+            p_value = _format_pvalue_latex(row['p_value'])
+            significance = 'Si' if row['p_value'] < 0.05 else 'No'
+            f.write(f"{metric} & {comparison} & {p_value} & {significance} \\\\\n")
+
+        f.write('\\bottomrule\n')
+        f.write('\\end{tabular}\n')
     
 
 def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_path="dataset/referencia.jpg"):
@@ -348,6 +404,7 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
 
     if stats_rows:
         pd.DataFrame(stats_rows).to_csv(os.path.join(output_dir, 'pruebas_estadisticas.csv'), index=False)
+        save_pvalues_latex_table(stats_rows, output_dir)
         print("Pruebas estadísticas guardadas en output/pruebas_estadisticas.csv")
 
     save_metric_boxplots(df, output_dir)
@@ -357,6 +414,7 @@ def evaluate_dataset(image_dir="dataset", output_dir="output", reference_image_p
     print("- resultados_detallados.csv")
     print("- resumen_metricas.csv")
     print("- pruebas_estadisticas.csv")
+    print("- tabla_pvalores.tex")
     print("- referencia_original.png")
     print("- referencia_he.png")
     print("- referencia_clahe.png")

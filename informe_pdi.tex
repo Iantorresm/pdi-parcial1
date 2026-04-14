@@ -31,7 +31,7 @@
 \end{IEEEkeywords}
 
 \section{Introducción}
-La mejora del contraste es una etapa central en el procesamiento digital de imágenes. Esta etapa resulta crucial especialmente cuando la iluminación de la escena no es uniforme o presenta un bajo rango dinámico. La técnica conocida como Ecualización de Histograma (HE) es simple y rápida. Sin embargo, HE puede sobre-realzar ciertas regiones y alterar de manera indeseada el brillo medio de la imagen original. Para mitigar estas limitaciones, los investigadores emplean enfoques locales, como CLAHE, y enfoques globales orientados a la preservación del brillo, como la técnica BHE2PL. Esta última técnica fue propuesta en las secciones 2 y 3 del artículo del profesor Pinto-Roa \textit{et al.}~\cite{aquino2017bi}.
+La mejora del contraste es una etapa central en el procesamiento digital de imágenes. Esta etapa resulta crucial especialmente cuando la iluminación de la escena no es uniforme o presenta un bajo rango dinámico. La técnica conocida como Ecualización de Histograma (HE) es simple y rápida. Sin embargo, HE puede sobre-realzar ciertas regiones y alterar de manera indeseada el brillo medio de la imagen original. Para mitigar estas limitaciones, los investigadores emplean enfoques locales, como CLAHE, y enfoques globales orientados a la preservación del brillo, como la técnica BHE2PL~\cite{aquino2017bi}.
 
 En este artículo se aborda la problemática descrita mediante una comparación metodológica de las técnicas HE, CLAHE y BHE2PL. Los objetivos principales de este experimento son dos. En primer lugar, se busca cuantificar de manera rigurosa el compromiso existente entre la preservación del brillo original y la mejora efectiva del contraste. En segundo lugar, se pretende analizar exhaustivamente el costo computacional asociado a cada técnica implementada. Para cumplir estos objetivos, el estudio combina métricas objetivas, pruebas estadísticas pareadas y un análisis visual comparativo sobre diversas imágenes de referencia.
 
@@ -47,13 +47,13 @@ La técnica de Ecualización de Histograma busca redistribuir las intensidades d
 El método CLAHE divide secuencialmente la imagen original en pequeños bloques denominados tiles. Posteriormente, el algoritmo aplica un filtro de ecualización independiente para cada bloque procesado limitando el contraste general. Este recorte evita que se amplifique desmedidamente el ruido térmico en áreas previamente homogéneas y carentes de detalles significativos.
 
 \subsection{Ecualización de Bi-histograma (BHE2PL)}
-Esta técnica divide artificialmente el histograma base en dos secciones separadas. Para este proceso, el algoritmo calcula dos niveles distintos de intensidad limitante e introduce parámetros de meseta o plateaus. Estos umbrales modifican adaptativamente ambos sub-histogramas mediante dos ecualizaciones autónomas. Este último paso permite conservar una gran porción del brillo original tal cual proponen las investigaciones del profesor Pinto-Roa~\cite{aquino2017bi}.
+Esta técnica divide artificialmente el histograma base en dos secciones separadas. Para este proceso, el algoritmo calcula dos niveles distintos de intensidad limitante e introduce parámetros de meseta o plateaus. Estos umbrales modifican adaptativamente ambos sub-histogramas mediante dos ecualizaciones autónomas. Este último paso permite conservar una gran porción del brillo original.
 
 \section{Metodología}
 \subsection{Base de Datos y Herramientas}
-Las pruebas se realizaron sobre 300 imágenes del conjunto de datos de Berkeley~\cite{MartinFTM01}. Las imágenes, originarias de 481$\times$321 píxeles de tamaño, fueron convertidas previamente a escala de grises para su posterior evaluación. Las herramientas de software utilizadas para la implementación y el análisis incluyen Python 3, la biblioteca OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
+Las pruebas se realizaron sobre 300 imágenes del conjunto de datos de Berkeley~\cite{MartinFTM01}. Las imágenes, originarias de 481$\times$321 píxeles de tamaño, fueron convertidas previamente a escala de grises para su posterior evaluación. Las herramientas de software utilizadas para la implementación y el análisis incluyen Python 3, las bibliotecas OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
 
-Los parámetros técnicos utilizados durante los experimentos fueron definidos de manera rigurosa para garantizar su reproducibilidad. La técnica CLAHE empleó un límite de recorte de 2.0 y una grilla de bloques de $8\times 8$. La técnica HE empleó la implementación estándar provista por OpenCV. Por último, la técnica BHE2PL empleó una implementación de referencia desarrollada de forma local a partir del trabajo propuesto en~\cite{aquino2017bi}. Adicionalmente, el estudio registró y evaluó el tiempo de procesamiento requerido por cada técnica. Todos los resultados reportados en este trabajo se ejecutaron en la computadora de Fabrizio, con CPU 13th Gen Intel(R) Core(TM) i9-13900HX, 32 GB de RAM y sistema operativo Windows 11 de 64 bits (arquitectura x64).
+Los parámetros técnicos utilizados durante los experimentos fueron definidos de manera rigurosa para garantizar su reproducibilidad. La técnica CLAHE empleó un límite de recorte de 2.0 y una grilla de bloques de $8\times 8$. La técnica HE empleó la implementación estándar provista por OpenCV. Por último, la técnica BHE2PL empleó una implementación de referencia desarrollada de forma local a partir del trabajo propuesto en~\cite{aquino2017bi}. Adicionalmente, el estudio registró y evaluó el tiempo de procesamiento requerido por cada técnica. Todos los resultados reportados en este trabajo se ejecutaron en una computadora personal, con CPU 13th Gen Intel(R) Core(TM) i9-13900HX, 32 GB de RAM y sistema operativo Windows 11 de 64 bits (arquitectura x64).
 
 \subsection{Métricas de Evaluación}
 El estudio evaluó el desempeño de las técnicas mediante diversas métricas objetivas de la literatura. A continuación, se detalla el propósito de cada una de estas métricas:
@@ -91,7 +91,7 @@ Las métricas principales fueron modeladas con las siguientes ecuaciones matemá
 En dichas ecuaciones, el símbolo $I$ representa la imagen original y el símbolo $J$ indica la imagen mejorada. Las variables $\mu$ y $\sigma$ refieren a la media y la desviación estándar de intensidad, respectivamente. La variable $H$ computa la entropía de Shannon. En SSIM, $l(\cdot)$ modela luminancia, $c(\cdot)$ modela contraste y $s(\cdot)$ modela estructura; además, $\sigma_{IJ}$ es la covarianza local y $C_1,C_2,C_3$ son constantes de estabilización numérica~\cite{hore2010image}.
 
 \subsection{Análisis Estadístico}
-Para evaluar diferencias entre métodos se aplicó la prueba $t$ de Student pareada por imagen. Se utilizó un nivel de significancia $\alpha=0.05$. El valor $p$ indica qué tan compatible es la diferencia observada con la hipótesis nula de igualdad entre métodos: cuanto menor es $p$, mayor evidencia de diferencia estadística. Para AMBE, PSNR, SSIM y tiempo se compararon HE, CLAHE y BHE2PL. Para contraste y entropía se incluyó también la imagen original.
+Para evaluar diferencias entre métodos se aplicó la prueba $t$ de Student pareada por imagen. Esta prueba es relevante en este estudio porque compara pares dependientes: para cada imagen del dataset, se calcula la misma métrica con dos técnicas distintas y se analiza la diferencia entre ambas. Bajo la hipótesis nula, la media de esas diferencias es cero. A partir de los datos observados, la prueba obtiene el valor $p$, que representa la probabilidad de observar una diferencia igual o mayor a la medida si la hipótesis nula fuera cierta~\cite{ho2019moving}. Se utilizó un nivel de significancia $\alpha=0.05$. Para AMBE, PSNR, SSIM y tiempo se compararon HE, CLAHE y BHE2PL. Para contraste y entropía se incluyó también la imagen original.
 
 \section{Resultados y Discusión}
 \subsection{Análisis Cuantitativo}
@@ -108,10 +108,24 @@ La Tabla~\ref{tab:global_results} presenta los promedios globales de todas las m
 	\footnotesize{Los mejores resultados por métrica se resaltan en negrita.}
 \end{table}
 
-Los resultados de la Tabla~\ref{tab:global_results} demuestran comportamientos cuantitativos diferenciados. La técnica BHE2PL logra minimizar significativamente el error absoluto de brillo medio (AMBE) y, simultáneamente, alcanza el valor más óptimo de PSNR. Por su parte, la técnica HE prioriza fuertemente el tiempo computacional promedio y expande de manera más agresiva el contraste global. Además, la técnica CLAHE proporciona el mayor nivel medio de entropía calculada. En términos de similitud estructural, el índice SSIM también favorece a BHE2PL frente a HE y CLAHE en las comparaciones pareadas. Estos fenómenos evidencian una coherencia esperada en base a la naturaleza del diseño de cada algoritmo evaluado de forma individual. En términos probabilísticos y estadísticos, las pruebas pareadas t de Student resultaron consistentes con las tendencias mostradas. Por ejemplo, para AMBE entre HE y CLAHE se obtuvo $p=1.79\times10^{-43}$. Este resultado respalda empíricamente que estas variaciones no ocurrieron por azar en la población estudiada.
+Los resultados de la Tabla~\ref{tab:global_results} demuestran comportamientos cuantitativos diferenciados. La técnica BHE2PL logra minimizar significativamente el error absoluto de brillo medio (AMBE) y, simultáneamente, alcanza el valor más óptimo de PSNR. Por su parte, la técnica HE prioriza fuertemente el tiempo computacional promedio y expande de manera más agresiva el contraste global. Además, la técnica CLAHE proporciona el mayor nivel medio de entropía calculada. En términos de similitud estructural, el índice SSIM también favorece a BHE2PL frente a HE y CLAHE en las comparaciones pareadas. Estos fenómenos evidencian una coherencia esperada en base a la naturaleza del diseño de cada algoritmo evaluado de forma individual.
+
+\begin{table}[H]
+	\caption{Pruebas t pareadas para métricas clave ($\alpha=0.05$)}
+	\label{tab:pvalues}
+	\centering
+	\scriptsize
+	\resizebox{\columnwidth}{!}{%
+		\input{output/tabla_pvalores.tex}
+	}
+	\vspace{2pt}
+	\footnotesize{Sig.: significativo si $p<0.05$.}
+\end{table}
+
+La Tabla~\ref{tab:pvalues} resume los $p$-valores obtenidos para cada métrica y comparación. En términos probabilísticos y estadísticos, las pruebas pareadas $t$ de Student resultaron consistentes con las tendencias mostradas. Por ejemplo, para AMBE entre HE y CLAHE se obtuvo $p=1.79\times10^{-43}$. Este resultado respalda empíricamente que estas variaciones no ocurrieron por azar en la población estudiada.
 
 \subsection{Análisis Visual Cualitativo}
-La Figura~\ref{fig:ref_images} presenta una de las imágenes procesadas en distintos modos, organizando su disposición espacial según la referencia del profesor Pinto-Roa \textit{et al.}~\cite{aquino2017bi} en su artículo base (Original, HE, CLAHE y BHE2PL). En el mismo sentido, la Figura~\ref{fig:ref_hist} detalla la estructura subyacente de frecuencias y distribuciones de todos sus respectivos histogramas en blanco y negro para facilitar la lectura cruzada de información.
+La Figura~\ref{fig:ref_images} presenta una de las imágenes procesadas en cuatro modos (Original, HE, CLAHE y BHE2PL). En el mismo sentido, la Figura~\ref{fig:ref_hist} detalla la estructura subyacente de frecuencias y distribuciones de todos sus respectivos histogramas en blanco y negro para facilitar la lectura cruzada de información.
 
 \begin{figure}[H]
 	\centering
@@ -138,7 +152,7 @@ La Figura~\ref{fig:ref_images} presenta una de las imágenes procesadas en disti
 		\includegraphics[width=\linewidth]{output/referencia_bhe2pl.png}
 		\centerline{(d) BHE2PL}
 	\end{minipage}
-	\caption{Comparación visual sobre una imagen tomada de la base de datos de Berkeley~\cite{MartinFTM01} organizada siguiendo el esquema de Pinto-Roa~\cite{aquino2017bi}.}
+	\caption{Comparación visual sobre una imagen tomada de la base de datos de Berkeley~\cite{MartinFTM01}.}
 	\label{fig:ref_images}
 \end{figure}
 
