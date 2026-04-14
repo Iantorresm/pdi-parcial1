@@ -6,6 +6,7 @@
 	\renewcommand{\tablename}{Tabla}
 	\renewcommand{\listtablename}{Índice de tablas}
 }
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -26,11 +27,11 @@
 \maketitle
 
 \begin{abstract}
-	La iluminación no uniforme en imágenes de bajo contraste deteriora la percepción visual y dificulta su análisis. Este trabajo compara tres técnicas de mejora de contraste: HE, CLAHE y BHE2PL. La motivación principal es identificar qué método ofrece mejor equilibrio entre preservación de brillo, realce de contraste y costo computacional. Para ello, se evaluaron 300 imágenes en escala de grises con las métricas AMBE, PSNR, SSIM, entropía, contraste y tiempo de ejecución. Los resultados muestran que BHE2PL preserva mejor el brillo y mantiene alta fidelidad estructural, mientras que HE minimiza el tiempo de procesamiento y CLAHE incrementa la entropía promedio. En conclusión, no existe una técnica universalmente superior; la selección depende del objetivo de la aplicación. Palabras clave del resumen: HE, CLAHE, BHE2PL, AMBE, PSNR y SSIM.
+	La iluminación no uniforme en imágenes de bajo contraste deteriora la percepción visual y dificulta su análisis. Este trabajo compara tres técnicas de mejora de contraste: HE, CLAHE y BHE2PL. La motivación principal es identificar qué método ofrece mejor equilibrio entre preservación de brillo, realce de contraste y costo computacional. Para ello, se evaluaron 300 imágenes en escala de grises con las métricas AMBE, PSNR, SSIM, entropía, contraste y tiempo de ejecución. Los resultados muestran que BHE2PL preserva mejor el brillo y mantiene alta fidelidad estructural, mientras que HE minimiza el tiempo de procesamiento y CLAHE incrementa la entropía promedio. En conclusión, no existe una técnica universalmente superior; la selección depende del objetivo de la aplicación.
 \end{abstract}
 
-\begin{IEEEkeywords}
-	Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR, SSIM.
+\begin{IEEEkeywords} 
+	Mejora de Imagen, Ecualización de Histograma, CLAHE, BHE2PL, AMBE, PSNR, SSIM, entropía, contraste.
 \end{IEEEkeywords}
 
 \section{Introducción}
