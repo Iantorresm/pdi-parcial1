@@ -39,3 +39,28 @@ los temas.
 27- En los experimentos se aclaran todos los parámetros necesariospara
 su reproducibilidad.
 28- Se puede mapear las conclusiones con los objetivos del trabajo.
+Además verificar si cumple con estos requisitos básicos:
+ Implementación de Técnicas de Mejora de Imagen: 
+• Implementar la ecualización de histograma tradicional y CLAHE utilizando 
+OpenCV. 
+• Seleccionar y implementar un algoritmo adicional de mejora de imagen 
+mencionado en los artículos suministrados por el profesor. 
+3. Análisis y Comparación: 
+• Utilizar las siguientes métricas para comparar el rendimiento de las dos 
+técnicas en cada imagen: 
+o Absolute Mean Brightness Error (AMBE) 
+o Peak Signal-to-Noise Ratio (PSNR) 
+o Contraste (medido como la desviación estándar de la imagen) 
+o Entropía de la imagen 
+o Analizar cómo cada técnica afecta la calidad y la percepción visual de las 
+imágenes. 
+4. Informe Final: 
+• Preparar un informe que incluya: 
+o Una breve descripción de las técnicas utilizadas. 
+o Metodología empleada para la implementación y el análisis. 
+o Resultados cuantitativos y cualitativos. 
+o Gráficos o imágenes que ilustren los efectos de cada técnica. 
+o Discusión sobre los resultados, incluyendo posibles razones de las 
+diferencias observadas y recomendaciones sobre cuándo usar cada 
+técnica. 
+o Conclusiones. 
