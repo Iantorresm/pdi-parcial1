@@ -28,3 +28,8 @@ X- Mejorar la declaración de los objetivos
 X- Mejorar (hacer más verbosas) las oraciones teniendo en cuenta requisitos.md
 V?- Revisar la Introducción, la ia agregó cosas raras de pinto y referencias falsas me parece (introducción, primer párrafo, última oración) (marco teórico II-C, última oración)
 V? Evaluar la necesidad de mostrar desviación típica.
+
+EN EL ENCABEZADO
+ - CAMBIAR EL FORMATO DE NOMBRE-DATOS AL DEL PAPER BI HISTOGRAM, ES MÁS LINDO :)
+ - HACER EL RESUMEN INTRODUCIENDO LO QUE HACEMOS, CÓMO LO HACEMOS, CÓMO EVALUAMOS Y CONCLUSIÓN
+ - PALABRAS CLAVE

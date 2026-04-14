@@ -2,6 +2,10 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+\addto\captionsspanish{
+	\renewcommand{\tablename}{Tabla}
+	\renewcommand{\listtablename}{Índice de tablas}
+}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -51,44 +55,50 @@ Esta técnica divide artificialmente el histograma base en dos secciones separad
 
 \section{Metodología}
 \subsection{Base de Datos y Herramientas}
-Las pruebas se realizaron sobre 300 imágenes del conjunto de datos de Berkeley~\cite{MartinFTM01}. Las imágenes, originarias de 481$\times$321 píxeles de tamaño, fueron convertidas previamente a escala de grises para su posterior evaluación. Las herramientas de software utilizadas para la implementación y el análisis incluyen Python 3, las bibliotecas OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
+Las pruebas se realizaron sobre 300 imágenes del conjunto de datos de Berkeley~\cite{MartinFTM01}. Las imágenes, originarias de 481$\times$321  y 321$\times$481 píxeles de tamaño, fueron convertidas previamente a escala de grises para su posterior evaluación. Las herramientas de software utilizadas para la implementación y el análisis incluyen Python 3, las bibliotecas OpenCV, NumPy, SciPy, scikit-image y Matplotlib.
 
 Los parámetros técnicos utilizados durante los experimentos fueron definidos de manera rigurosa para garantizar su reproducibilidad. La técnica CLAHE empleó un límite de recorte de 2.0 y una grilla de bloques de $8\times 8$. La técnica HE empleó la implementación estándar provista por OpenCV. Por último, la técnica BHE2PL empleó una implementación de referencia desarrollada de forma local a partir del trabajo propuesto en~\cite{aquino2017bi}. Adicionalmente, el estudio registró y evaluó el tiempo de procesamiento requerido por cada técnica. Todos los resultados reportados en este trabajo se ejecutaron en una computadora personal, con CPU 13th Gen Intel(R) Core(TM) i9-13900HX, 32 GB de RAM y sistema operativo Windows 11 de 64 bits (arquitectura x64).
 
 \subsection{Métricas de Evaluación}
 El estudio evaluó el desempeño de las técnicas mediante diversas métricas objetivas de la literatura. A continuación, se detalla el propósito de cada una de estas métricas:
-\begin{itemize}
-	\item \textbf{AMBE (Absolute Mean Brightness Error):} Esta métrica mide la desviación del nivel de brillo promedio.
-	\item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Esta relación evalúa cuantitativamente el nivel de distorsión o ruido introducido.
-	\item \textbf{Contraste:} Esta métrica representa la desviación estándar de los niveles de intensidad gris.
-	\item \textbf{Entropía:} Esta medida de la teoría de la información evalúa la cantidad de detalles preservados en la imagen final.
-	\item \textbf{SSIM (Structural Similarity Index):} Este índice mide la similitud estructural percibida entre las imágenes~\cite{hore2010image}.
-	\item \textbf{Tiempo (ms):} Esta variable representa el costo computacional temporal de cada algoritmo.
-\end{itemize}
-
-Las métricas principales fueron modeladas con las siguientes ecuaciones matemáticas. Los paréntesis ubicados a la derecha de cada expresión denotan el número referencial correspondiente para su uso en este documento:
-\begin{equation}
-	\mathrm{AMBE} = \left|\mu(I)-\mu(J)\right|
-\end{equation}
-\begin{align}
-	\mathrm{PSNR} & = 10\log_{10}\left[\frac{(L-1)^2}{\mathrm{MSE}}\right],  \\
-	\mathrm{MSE}  & = \frac{1}{MN}\sum_{x,y}\left[I(x,y)-J(x,y)\right]^2
-\end{align}
-\begin{equation}
-	\sigma(J)=\sqrt{\sum_{k=0}^{L-1}(k-\mu(J))^2 \cdot p(k)}
-\end{equation}
-\begin{equation}
-	H(J)=-\sum_{k=0}^{L-1} p(k)\log_2\left(p(k)\right)
-\end{equation}
-\begin{align}
-	l(I,J) &= \frac{2\mu_I\mu_J + C_1}{\mu_I^2+\mu_J^2+C_1} \\
-	c(I,J) &= \frac{2\sigma_I\sigma_J + C_2}{\sigma_I^2+\sigma_J^2+C_2} \\
-	s(I,J) &= \frac{\sigma_{IJ}+C_3}{\sigma_I\sigma_J+C_3}
-\end{align}
-\begin{equation}
-	\mathrm{SSIM}(I,J)=l(I,J)\,c(I,J)\,s(I,J)
-\end{equation}
-En dichas ecuaciones, el símbolo $I$ representa la imagen original y el símbolo $J$ indica la imagen mejorada. Las variables $\mu$ y $\sigma$ refieren a la media y la desviación estándar de intensidad, respectivamente. La variable $H$ computa la entropía de Shannon. En SSIM, $l(\cdot)$ modela luminancia, $c(\cdot)$ modela contraste y $s(\cdot)$ modela estructura; además, $\sigma_{IJ}$ es la covarianza local y $C_1,C_2,C_3$ son constantes de estabilización numérica~\cite{hore2010image}.
+\begin{enumerate}
+	\item \textbf{Tiempo de ejecución:} representa el tiempo de procesamiento temporal computacional de cada algoritmo y se mide en milisegundos (ms).
+	\item \textbf{AMBE (Absolute Mean Brightness Error):} Esta métrica mide el error absoluto del nivel de brillo promedio. Evalúa el desempeño de la técnica para preservar el brillo original de la imagen, calculada mediante:
+	\begin{equation}
+		\mathrm{AMBE} = \left|\mu(I)-\mu(J)\right|
+	\end{equation}
+	donde $\mu(I)$ y $\mu(J)$ representan la intensidad media de la imagen de entrada $I$ y de la imagen resultante $J$, respectivamente. Cuanto menor sea el valor de AMBE, mejor será la preservación del brillo original.
+	\item \textbf{PSNR (Peak Signal-to-Noise Ratio):} Esta relación permite determinar cuantitativamente la cantidad de distorsión o ruido introducida en la imagen tras el procesamiento. Se define como:
+	\begin{equation}
+		\mathrm{PSNR} = 10\log_{10}\left[\frac{(L-1)^2}{\mathrm{MSE}}\right]
+	\end{equation}
+	donde MSE ("Mean Squared Error") computa el error cuadrático medio:
+	\begin{equation}
+		\mathrm{MSE} = \frac{1}{MN}\sum_{x,y}\left[I(x,y)-J(x,y)\right]^2
+	\end{equation}
+	El valor del PSNR se mide en decibelios (dB). Un valor mayor indica que se introdujo una menor cantidad de ruido al transformar la imagen, reflejando una mejor calidad.
+	\item \textbf{Entropía:} Esta métrica de la teoría de la información evalúa la cantidad de detalles preservados en la imagen devuelta. Su cálculo es:
+	\begin{equation}
+		H(J)=-\sum_{k=0}^{L-1} p(k)\log_2\left(p(k)\right)
+	\end{equation}
+	donde $p(k)$ indica la probabilidad marginal del nivel de intensidad gris $k$. Una mayor entropía representa una mayor riqueza de detalle percibida en la imagen final.
+	\item \textbf{Contraste:} Esta métrica representa la desviación estándar de los niveles de intensidad gris en la imagen computada, de la forma:
+	\begin{equation}
+		\sigma(J)=\sqrt{\sum_{k=0}^{L-1}(k-\mu(J))^2 \cdot p(k)}
+	\end{equation}
+	El valor de contraste de la imagen resultante debe ser superior al contraste de la imagen de entrada para asumir una mejora.
+	\item \textbf{SSIM (Structural Similarity Index):} Este índice mide la similitud estructural percibida entre la imagen original $I$ y la mejorada $J$~\cite{hore2010image}.
+	\begin{equation}
+		\mathrm{SSIM}(I,J)=l(I,J)\,c(I,J)\,s(I,J)
+	\end{equation}
+	donde las variables asociadas calculan comparativamente características clave. En particular $l(\cdot)$ modela luminancia, $c(\cdot)$ el contraste y $s(\cdot)$ la estructura, dado por:
+	\begin{align}
+		l(I,J) &= \frac{2\mu_I\mu_J + C_1}{\mu_I^2+\mu_J^2+C_1} \\
+		c(I,J) &= \frac{2\sigma_I\sigma_J + C_2}{\sigma_I^2+\sigma_J^2+C_2} \\
+		s(I,J) &= \frac{\sigma_{IJ}+C_3}{\sigma_I\sigma_J+C_3}
+	\end{align}
+	Siendo $\sigma_{IJ}$ la covarianza local que relaciona ambas señales, y $C_1,C_2,C_3$ constantes de estabilización numérica agregadas a sus correspondientes denominadores.
+\end{enumerate}
 
 \subsection{Análisis Estadístico}
 Para evaluar diferencias entre métodos se aplicó la prueba $t$ de Student pareada por imagen. Esta prueba es relevante en este estudio porque compara pares dependientes: para cada imagen del dataset, se calcula la misma métrica con dos técnicas distintas y se analiza la diferencia entre ambas. Bajo la hipótesis nula, la media de esas diferencias es cero. A partir de los datos observados, la prueba obtiene el valor $p$, que representa la probabilidad de observar una diferencia igual o mayor a la medida si la hipótesis nula fuera cierta~\cite{ho2019moving}. Se utilizó un nivel de significancia $\alpha=0.05$. Para AMBE, PSNR, SSIM y tiempo se compararon HE, CLAHE y BHE2PL. Para contraste y entropía se incluyó también la imagen original.
@@ -114,7 +124,6 @@ Los resultados de la Tabla~\ref{tab:global_results} demuestran comportamientos c
 	\caption{Pruebas t pareadas para métricas clave ($\alpha=0.05$)}
 	\label{tab:pvalues}
 	\centering
-	\scriptsize
 	\resizebox{\columnwidth}{!}{%
 		\input{output/tabla_pvalores.tex}
 	}
@@ -163,7 +172,7 @@ La Figura~\ref{fig:ref_images} presenta una de las imágenes procesadas en cuatr
 	\label{fig:ref_hist}
 \end{figure}
 
-El análisis visual comprueba de forma empírica las afirmaciones cuantitativas extraídas por el algoritmo. Como se observa en la Figura~\ref{fig:ref_images}(b), la técnica HE impone un fuerte realce global en las diferentes intensidades de gris, de modo que en repetidas ocasiones satura o quema porciones completas de la imagen respecto a la original en (a). Por otro lado, la técnica CLAHE en (c) mejora los detalles de alto nivel en vecindades más localizadas, pero exacerba visualmente el ruido de fondo en la fotografía. Finalmente, el algoritmo de preservación BHE2PL evidenciado en (d) ofrece una transición suave, sin degradaciones extremas. Esta moderación observada se relaciona directamente con el nivel tan estrecho de su respectiva métrica de error AMBE calculada previamente en nuestra experimentación.
+El análisis visual comprueba de forma empírica las afirmaciones cuantitativas extraídas por el algoritmo. Como se observa en la Figura~\ref{fig:ref_images}(b), la técnica HE impone un fuerte realce global en las diferentes intensidades de gris, de modo que en repetidas ocasiones satura porciones completas de la imagen respecto a la original en (a). Por otro lado, la técnica CLAHE en (c) mejora los detalles de alto nivel en vecindades más localizadas, pero exacerba visualmente el ruido de fondo en la fotografía. Finalmente, el algoritmo de preservación BHE2PL evidenciado en (d) ofrece una transición suave, sin degradaciones extremas. Esta moderación observada se relaciona directamente con el nivel tan estrecho de su respectiva métrica de error AMBE calculada previamente en nuestra experimentación.
 
 \section{Conclusiones}
 Los experimentos realizados cumplieron satisfactoriamente todos los objetivos planteados inicialmente. Por un lado, se confirmó cuantitativamente que el método de mejora BHE2PL preserva el nivel del brillo original de una manera mucho más óptima respecto a sus técnicas subyacentes. Su implementación de doble ecualización redujo drásticamente las variaciones capturadas por el error absoluto de AMBE. Al mismo tiempo, la retención de similitud se tradujo en valores destacables de PSNR en la muestra evaluada. Por otro lado, las evaluaciones temporales demostraron que la técnica HE es el recurso con menor exigencia computacional. Su algoritmo logró ecualizar una imagen en milisegundos a costa de saturar gran porción de sus brillos iniciales.
