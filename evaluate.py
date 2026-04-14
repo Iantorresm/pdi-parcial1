@@ -197,12 +197,19 @@ def print_global_averages(summary):
                 print(f"  {metric_name}: N/A")
             else:
                 print(f"  {metric_name}: {mean_val:.3f} ± {std_val:.3f}")
+
+    best_ambe = summary['AMBE_mean'].min()
+    best_psnr = summary['PSNR_mean'].max()
+    best_ssim = summary['SSIM_mean'].max()
+    best_entr = summary['Entropy_mean'].max()
+    best_cont = summary['Contrast_mean'].max()
+    best_t = summary['Time_ms_mean'].min()
     
     # Export to LaTeX
     with open('output/tabla_resultados.tex', 'w', encoding='utf-8') as f:
-        f.write('\\begin{tabular}{lccccc}\n')
+        f.write('\\begin{tabular}{lcccccc}\n')
         f.write('\\toprule\n')
-        f.write('Método & T (ms) & AMBE & PSNR & Entr. & Cont. \\\\\n')
+        f.write('Método & T (ms) & AMBE & PSNR & SSIM & Entr. & Cont. \\\\\n')
         f.write('\\midrule\n')
         for method in ['Original', 'HE', 'CLAHE', 'BHE2PL']:
             if method not in summary.index: continue
@@ -214,21 +221,15 @@ def print_global_averages(summary):
                 res = f"{val:.3f} $\\pm$ {std:.3f}"
                 if is_best: res = f"\\textbf{{{res}}}"
                 return res
-            
-            # Find best metrics for highlighting
-            best_ambe = summary['AMBE_mean'].min()
-            best_psnr = summary['PSNR_mean'].max()
-            best_entr = summary['Entropy_mean'].max()
-            best_cont = summary['Contrast_mean'].max()
-            best_t = summary['Time_ms_mean'].min()
-            
+
             t_str = fmt('Time_ms_mean', 'Time_ms_std', summary.loc[method, 'Time_ms_mean'] == best_t)
             ambe_str = fmt('AMBE_mean', 'AMBE_std', summary.loc[method, 'AMBE_mean'] == best_ambe)
             psnr_str = fmt('PSNR_mean', 'PSNR_std', summary.loc[method, 'PSNR_mean'] == best_psnr)
+            ssim_str = fmt('SSIM_mean', 'SSIM_std', summary.loc[method, 'SSIM_mean'] == best_ssim)
             entr_str = fmt('Entropy_mean', 'Entropy_std', summary.loc[method, 'Entropy_mean'] == best_entr)
             cont_str = fmt('Contrast_mean', 'Contrast_std', summary.loc[method, 'Contrast_mean'] == best_cont)
-            
-            f.write(f"{method} & {t_str} & {ambe_str} & {psnr_str} & {entr_str} & {cont_str} \\\\\n")
+
+            f.write(f"{method} & {t_str} & {ambe_str} & {psnr_str} & {ssim_str} & {entr_str} & {cont_str} \\\\\n")
         
         f.write('\\bottomrule\n')
         f.write('\\end{tabular}\n')
